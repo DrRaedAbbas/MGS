@@ -27,7 +27,10 @@ public class MGS_Online : ModuleRules
 			{
 				"Core",
 				"OnlineSubsystem",
-				"OnlineSubsystemSteam"
+				"OnlineSubsystemSteam",
+				"UMG",
+				"Slate",
+				"SlateCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
