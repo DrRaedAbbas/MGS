@@ -12,6 +12,10 @@
  * Custom delegates
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMGSCreateSessionCompleted, bool, bWasSuccessful);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FMGSFindSessionsCompleted, const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+DECLARE_MULTICAST_DELEGATE_OneParam(FMGSJoinSessionCompleted, EOnJoinSessionCompleteResult::Type Result);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMGSStartSessionCompleted, bool, bWasSuccessful);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMGSDestroySessionCompleted, bool, bWasSuccessful);
 
 UCLASS()
 class MGS_ONLINE_API UMGS_OnlineSubsystem : public UGameInstanceSubsystem
@@ -22,13 +26,18 @@ public:
 	UMGS_OnlineSubsystem();
 
 	//Functions for menus
-	void CreateGameSession(int32 MaxPlayers, FString MatchType, FString PathToLevel);
-	void FindGameSessions(int32 MaxSearchResults);
+	void CreateGameSession(int32 MaxPlayers, FString MatchType);
+	void FindGameSessions(int32 MaxSearchResults = 10000);
 	void JoinGameSession(const FOnlineSessionSearchResult& SessionSearchResult);
 	void StartGameSession();
 	void DestroyGameSession();
 
+	//Custom delegates to broadcast
 	FMGSCreateSessionCompleted MGSCreateSessionCompleted;
+	FMGSFindSessionsCompleted MGSFindSessionsCompleted;
+	FMGSJoinSessionCompleted MGSJoinSessionCompleted;
+	FMGSStartSessionCompleted MGSStartSessionCompleted;
+	FMGSDestroySessionCompleted MGSDestroySessionCompleted;
 
 protected:
 	//callbacks for subsystem's delegates
@@ -41,7 +50,8 @@ protected:
 private:
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<FOnlineSessionSettings> SessionSettings;
-	FString LevelToTravelTo;
+	class UMGSFunctionLibrary* MGSFunctionLibrary;
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 
 	//To bind subsystem callbacks
 	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;

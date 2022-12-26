@@ -2,7 +2,9 @@
 
 
 #include "MGS_OnlineSubsystem.h"
+#include "MGSFunctionLibrary.h"
 #include "OnlineSessionSettings.h"
+
 #include "OnlineSubsystem.h"
 
 UMGS_OnlineSubsystem::UMGS_OnlineSubsystem():
@@ -19,12 +21,15 @@ DestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(
 	}
 }
 
-void UMGS_OnlineSubsystem::CreateGameSession(int32 MaxPlayers, FString MatchType, FString PathToLevel)
+//*******************Creating Session**********************
+void UMGS_OnlineSubsystem::CreateGameSession(int32 MaxPlayers, FString MatchType)
 {
 	if (!SessionInterface) return;
 
 	if (auto ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession))
 		SessionInterface->DestroySession(NAME_GameSession);
+
+	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Creating Game Session")), FColor::Blue);
 
 	CreateSessionHandle = SessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
 	SessionSettings = MakeShareable(new FOnlineSessionSettings());
@@ -36,8 +41,6 @@ void UMGS_OnlineSubsystem::CreateGameSession(int32 MaxPlayers, FString MatchType
 	SessionSettings->bUsesPresence = true;
 	SessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-	LevelToTravelTo = PathToLevel;
-
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	const FUniqueNetId& LocalPlayerID = *LocalPlayer->GetPreferredUniqueNetId();
 
@@ -46,72 +49,76 @@ void UMGS_OnlineSubsystem::CreateGameSession(int32 MaxPlayers, FString MatchType
 		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionHandle);
 		MGSCreateSessionCompleted.Broadcast(false);
 	}
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Blue,
-			FString(TEXT("Creating Game Session"))
-		);
-	}
 }
 void UMGS_OnlineSubsystem::OnCreateSessionCompleted(FName SessionName, bool bWasSuccessful)
 {
-	/*if (UWorld* World = GetWorld())
-	{
-		LevelToTravelTo = LevelToTravelTo + FString(TEXT("?listen"));
-		World->ServerTravel(LevelToTravelTo);
-	}*/
-	
-	MGSCreateSessionCompleted.Broadcast(bWasSuccessful);
 	if (SessionInterface) SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionHandle);
+	MGSCreateSessionCompleted.Broadcast(bWasSuccessful);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Green,
-			FString(TEXT("Create Session Completed"))
-		);
-	}
-
+	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Create Session Completed")), FColor::Green);
 }
 
+//*******************Finding Session***********************
 void UMGS_OnlineSubsystem::FindGameSessions(int32 MaxSearchResults)
 {
+	if (!SessionInterface.IsValid()) return;
+
+	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Finding Game Sessions")), FColor::Blue);
+
+	FindSessionsHandle = SessionInterface->AddOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegate);
+	SessionSearch = MakeShareable(new FOnlineSessionSearch());
+	SessionSearch->MaxSearchResults = MaxSearchResults;
+	SessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
+	SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	if(!SessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef()))
+	{
+		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsHandle);
+		MGSFindSessionsCompleted.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
+	}
 }
 void UMGS_OnlineSubsystem::OnFindSessionsCompleted(bool bWasSuccessful)
 {
+	if (SessionInterface) SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsHandle);
+	if (SessionSearch->SearchResults.Num() <= 0)
+	{
+		MGSFindSessionsCompleted.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
+		MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("No Session Found!")), FColor::Red);
+		return;
+	}
+	MGSFindSessionsCompleted.Broadcast(SessionSearch->SearchResults, bWasSuccessful);
+
+	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Find Session Completed")), FColor::Green);
 }
 
+//*******************Joining Session***********************
 void UMGS_OnlineSubsystem::JoinGameSession(const FOnlineSessionSearchResult& SessionSearchResult)
 {
-	if (GEngine)
+	if (!SessionInterface.IsValid())
 	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Blue,
-			FString(TEXT("Joining Game Session"))
-		);
+		MGSJoinSessionCompleted.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+		return;
+	}
+
+	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Joining Game Session")), FColor::Blue);
+
+	JoinSessionHandle = SessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
+	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	if (!SessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionSearchResult))
+	{
+		SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionHandle);
+		MGSJoinSessionCompleted.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
 	}
 }
 void UMGS_OnlineSubsystem::OnJoinSessionCompleted(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Green,
-			FString(TEXT("Join Session Completed"))
-		);
-	}
+	if (SessionInterface) SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionHandle);
+	MGSJoinSessionCompleted.Broadcast(Result);
+
+	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Join Session Completed")), FColor::Green);
 }
 
+//*******************Starting Game*************************
 void UMGS_OnlineSubsystem::StartGameSession()
 {
 }
@@ -119,6 +126,7 @@ void UMGS_OnlineSubsystem::OnStartSessionCompleted(FName SessionName, bool bWasS
 {
 }
 
+//*******************Destroying Session********************
 void UMGS_OnlineSubsystem::DestroyGameSession()
 {
 }
