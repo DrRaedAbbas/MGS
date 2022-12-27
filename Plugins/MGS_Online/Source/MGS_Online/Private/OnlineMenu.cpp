@@ -1,4 +1,4 @@
-// Copy righted to RAED ABBAS 2022
+// Copy righted to RAED ABBAS 2023
 
 
 #include "OnlineMenu.h"
@@ -54,7 +54,6 @@ void UOnlineMenu::LoadMenu()
 			{
 				if (UMenuButton* FoundButton = Cast<UMenuButton>(Widget))
 				{
-					//FoundButton->MainMenu = this;
 					FoundButton->SetupButton(this);
 				}
 			});

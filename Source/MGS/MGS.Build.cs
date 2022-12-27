@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copy righted to RAED ABBAS 2023
 
 using UnrealBuildTool;
 
@@ -8,7 +8,7 @@ public class MGS : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" , "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" , "UMG" , "MGS_Online"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
