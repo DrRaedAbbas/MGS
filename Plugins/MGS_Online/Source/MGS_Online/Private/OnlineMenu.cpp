@@ -2,94 +2,29 @@
 
 
 #include "OnlineMenu.h"
+
+#include "MenuButton.h"
 #include "MGSFunctionLibrary.h"
 #include "MGS_OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
-
-#include "Components/Button.h"
-#include "Components/TextBlock.h"
-
+#include "Blueprint/WidgetTree.h"
 
 void UOnlineMenu::NativePreConstruct()
 {
 	Super::NativePreConstruct();
-	//Define widget button type
-	HostText->SetText(FText::FromString(HostButtonLabel));
-	FindText->SetText(FText::FromString(FindButtonLabel));
-	JoinText->SetText(FText::FromString(JoinButtonLabel));
-
-	switch (ButtonType)
-	{
-		case EButtonType::NONE:
-		{
-			HostButton->SetVisibility(ESlateVisibility::Visible);
-			JoinButton->SetVisibility(ESlateVisibility::Visible);
-			FindButton->SetVisibility(ESlateVisibility::Visible);
-			HostText->SetVisibility(ESlateVisibility::Visible);
-			FindText->SetVisibility(ESlateVisibility::Visible);
-			JoinText->SetVisibility(ESlateVisibility::Visible);
-			break;
-		}
-		case EButtonType::HostButton:
-		{
-			HostButton->SetVisibility(ESlateVisibility::Visible);
-			JoinButton->SetVisibility(ESlateVisibility::Collapsed);
-			FindButton->SetVisibility(ESlateVisibility::Collapsed);
-			HostText->SetVisibility(ESlateVisibility::Visible);
-			JoinText->SetVisibility(ESlateVisibility::Collapsed);
-			FindText->SetVisibility(ESlateVisibility::Collapsed);
-			break;
-		}
-		case EButtonType::FindButton:
-		{
-			HostButton->SetVisibility(ESlateVisibility::Collapsed);
-			JoinButton->SetVisibility(ESlateVisibility::Collapsed);
-			FindButton->SetVisibility(ESlateVisibility::Visible);
-			HostText->SetVisibility(ESlateVisibility::Collapsed);
-			JoinText->SetVisibility(ESlateVisibility::Collapsed);
-			FindText->SetVisibility(ESlateVisibility::Visible);
-			break;
-		}
-		case EButtonType::JoinButton:
-		{
-			HostButton->SetVisibility(ESlateVisibility::Collapsed);
-			JoinButton->SetVisibility(ESlateVisibility::Visible);
-			FindButton->SetVisibility(ESlateVisibility::Collapsed);
-			HostText->SetVisibility(ESlateVisibility::Collapsed);
-			JoinText->SetVisibility(ESlateVisibility::Visible);
-			FindText->SetVisibility(ESlateVisibility::Collapsed);
-			break;
-		}
-		default:
-		{
-			HostButton->SetVisibility(ESlateVisibility::Visible);
-			JoinButton->SetVisibility(ESlateVisibility::Visible);
-			FindButton->SetVisibility(ESlateVisibility::Visible);
-			HostText->SetVisibility(ESlateVisibility::Visible);
-			FindText->SetVisibility(ESlateVisibility::Visible);
-			JoinText->SetVisibility(ESlateVisibility::Visible);
-			break;
-		}
-	}
 }
 
 bool UOnlineMenu::Initialize()
 {
 	if (!Super::Initialize()) return false;
 
-	if (HostButton)
-	{
-		HostButton->OnClicked.AddDynamic(this, &ThisClass::UOnlineMenu::HostButtonClicked);
-	}
-	if (JoinButton)
-	{
-		HostButton->OnClicked.AddDynamic(this, &ThisClass::JoingButtonClicked);
-	}
-	if(FindButton)
-	{
-		FindButton->OnClicked.AddDynamic(this, &ThisClass::FindButtonClicked);
-	}
+	WidgetTree->ForEachWidget([&](UWidget* Widget) {
+		if (UMenuButton* FoundButton= Cast<UMenuButton>(Widget))
+		{
+			FoundButton->MainMenu = this;
+		}
+		});
 
 	return true;
 }

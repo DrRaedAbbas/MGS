@@ -9,18 +9,6 @@
 
 #include "OnlineMenu.generated.h"
 
-class UButton;
-class UTextBlock;
-
-UENUM(BlueprintType)
-enum class EButtonType : uint8
-{
-	NONE,
-	HostButton,
-	JoinButton,
-	FindButton	
-};
-
 UCLASS()
 class MGS_ONLINE_API UOnlineMenu : public UUserWidget
 {
@@ -40,35 +28,18 @@ public:
 	FString GameType = FString("FreeForAll");
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS Online Settings")
 	FString LevelPath = FString("/Game/Maps/Lobby");
-	
+
+	UFUNCTION()
+	void HostButtonClicked();
+	UFUNCTION()
+	void JoingButtonClicked();
+	UFUNCTION()
+	void FindButtonClicked();
+
 private:
 	class UMGS_OnlineSubsystem* MGS_OnlineSubsystem;
 	class UMGSFunctionLibrary* MGSFunctionLibrary;
 
-	//hosting
-	UPROPERTY(meta = (BindWidget))
-	UButton* HostButton;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* HostText;
-	UFUNCTION()
-	void HostButtonClicked();
-
-	//Joining
-	UPROPERTY(meta = (BindWidget))
-	UButton* JoinButton;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* JoinText;
-	UFUNCTION()
-	void JoingButtonClicked();
-
-	//Finding
-	UPROPERTY(meta = (BindWidget))
-	UButton* FindButton;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* FindText;
-	UFUNCTION()
-	void FindButtonClicked();
-	
 	FOnlineSessionSearchResult SessionSearchResult;
 
 protected:
@@ -83,14 +54,4 @@ protected:
 	void OnStartSession(bool bWasSuccessful);
 	UFUNCTION()
 	void OnDestroySession(bool bWasSuccessful);
-
-	//Custom Buttons
-	UPROPERTY(EditAnywhere)
-	EButtonType ButtonType = EButtonType::NONE;
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "ButtonType == EButtonType::HostButton || ButtonType == EButtonType::NONE", EditConditionHides), Category = "MGS Online Settings")
-	FString HostButtonLabel = FString("Host");
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "ButtonType == EButtonType::FindButton || ButtonType == EButtonType::NONE", EditConditionHides), Category = "MGS Online Settings")
-	FString FindButtonLabel = FString("Find");
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "ButtonType == EButtonType::JoinButton || ButtonType == EButtonType::NONE", EditConditionHides), Category = "MGS Online Settings")
-	FString JoinButtonLabel = FString("Join");
 };
