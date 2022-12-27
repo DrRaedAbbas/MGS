@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copy righted to RAED ABBAS 2022
 
 #pragma once
 
@@ -8,6 +8,8 @@
 #include "Interfaces/OnlineSessionInterface.h"
 
 #include "OnlineMenu.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonReady, bool, bButtonRead)
 
 UCLASS()
 class MGS_ONLINE_API UOnlineMenu : public UUserWidget
@@ -35,6 +37,8 @@ public:
 	void JoingButtonClicked();
 	UFUNCTION()
 	void FindButtonClicked();
+
+	FOnButtonReady OnButtonReady;
 
 private:
 	class UMGS_OnlineSubsystem* MGS_OnlineSubsystem;

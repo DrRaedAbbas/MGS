@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copy righted to RAED ABBAS 2022
 
 #pragma once
 
@@ -29,11 +29,13 @@ class MGS_ONLINE_API UMenuButton : public UButton
 
 public:
 	class UOnlineMenu* MainMenu;
-
+	void SetupButton(class UOnlineMenu* NewMainMenu);
 protected:
 	UPROPERTY(EditAnywhere)
 	EButtonType ButtonType = EButtonType::NONE;
 
 	UFUNCTION()
 	void OnButtonClicked();
+	UFUNCTION()
+	void OnButtonReady(bool bButtonReady);
 };

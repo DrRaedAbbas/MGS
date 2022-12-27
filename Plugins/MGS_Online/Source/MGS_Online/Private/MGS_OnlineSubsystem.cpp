@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copy righted to RAED ABBAS 2022
 
 
 #include "MGS_OnlineSubsystem.h"
@@ -27,7 +27,14 @@ void UMGS_OnlineSubsystem::CreateGameSession(int32 MaxPlayers, FString MatchType
 	if (!SessionInterface) return;
 
 	if (auto ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession))
-		SessionInterface->DestroySession(NAME_GameSession);
+	{
+		bCreateSessionOnDestroy = true;
+		LastMaxPlayers = MaxPlayers;
+		LastMatchType = MatchType;
+
+		DestroyGameSession();
+	}
+		//SessionInterface->DestroySession(NAME_GameSession);
 
 	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Creating Game Session")), FColor::Blue);
 
@@ -40,6 +47,7 @@ void UMGS_OnlineSubsystem::CreateGameSession(int32 MaxPlayers, FString MatchType
 	SessionSettings->bShouldAdvertise = true;
 	SessionSettings->bUsesPresence = true;
 	SessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	SessionSettings->BuildUniqueId = 1;
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	const FUniqueNetId& LocalPlayerID = *LocalPlayer->GetPreferredUniqueNetId();
@@ -129,7 +137,30 @@ void UMGS_OnlineSubsystem::OnStartSessionCompleted(FName SessionName, bool bWasS
 //*******************Destroying Session********************
 void UMGS_OnlineSubsystem::DestroyGameSession()
 {
+	if (!SessionInterface.IsValid())
+	{
+		MGSDestroySessionCompleted.Broadcast(false);
+		return;
+	}
+	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Destroying Game Session")), FColor::Blue);
+	DestroySessionHandle = SessionInterface->AddOnDestroySessionCompleteDelegate_Handle(DestroySessionCompleteDelegate);
+	if (!SessionInterface->DestroySession(NAME_GameSession))
+	{
+		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(DestroySessionHandle);
+		MGSDestroySessionCompleted.Broadcast(false);
+	}
 }
 void UMGS_OnlineSubsystem::OnDestroySessionCompleted(FName SessionName, bool bWasSuccessful)
 {
+	if (SessionInterface)
+	{
+		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(DestroySessionHandle);
+	}
+	if (bWasSuccessful && bCreateSessionOnDestroy)
+	{
+		MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Destroy Session Completed")), FColor::Green);
+		bCreateSessionOnDestroy = false;
+		CreateGameSession(LastMaxPlayers, LastMatchType);
+	}
+	MGSDestroySessionCompleted.Broadcast(bWasSuccessful);
 }

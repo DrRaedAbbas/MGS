@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copy righted to RAED ABBAS 2022
 
 #include "MGS_Online.h"
 

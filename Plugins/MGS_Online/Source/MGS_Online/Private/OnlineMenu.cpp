@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copy righted to RAED ABBAS 2022
 
 
 #include "OnlineMenu.h"
@@ -19,12 +19,14 @@ bool UOnlineMenu::Initialize()
 {
 	if (!Super::Initialize()) return false;
 
-	WidgetTree->ForEachWidget([&](UWidget* Widget) {
+	WidgetTree->ForEachWidget([&](UWidget* Widget)
+	{
 		if (UMenuButton* FoundButton= Cast<UMenuButton>(Widget))
 		{
-			FoundButton->MainMenu = this;
+			//FoundButton->MainMenu = this;
+			FoundButton->SetupButton(this);
 		}
-		});
+	});
 
 	return true;
 }
@@ -121,16 +123,22 @@ void UOnlineMenu::OnCreateSession(bool bWasSuccessful)
 			LevelPath = LevelPath + FString(TEXT("?listen"));
 			World->ServerTravel(LevelPath);
 		}
+		OnButtonReady.Broadcast(true);
 	}
 	else
 	{
 		MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Session was not created!")), FColor::Red);
+		OnButtonReady.Broadcast(true);
 	}
 }
 
 void UOnlineMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
-	if (MGS_OnlineSubsystem == nullptr) return;
+	if (MGS_OnlineSubsystem == nullptr)
+	{
+		OnButtonReady.Broadcast(true);
+		return;
+	}
 
 	MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Finding Game Sessions!")), FColor::Cyan);
 	for (auto Result : SessionResults)
@@ -146,6 +154,7 @@ void UOnlineMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& Sessi
 			break;
 		}
 	}
+	OnButtonReady.Broadcast(true);
 }
 
 void UOnlineMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
@@ -172,12 +181,15 @@ void UOnlineMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 	{
 		MGSFunctionLibrary->DisplayDebugMessage(FString(TEXT("Subsystem Does Not Exist!")), FColor::Red);
 	}
+	OnButtonReady.Broadcast(true);
 }
 
 void UOnlineMenu::OnStartSession(bool bWasSuccessful)
 {
+	OnButtonReady.Broadcast(true);
 }
 
 void UOnlineMenu::OnDestroySession(bool bWasSuccessful)
 {
+	OnButtonReady.Broadcast(true);
 }

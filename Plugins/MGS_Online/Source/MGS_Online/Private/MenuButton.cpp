@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copy righted to RAED ABBAS 2022
 
 #include "MenuButton.h"
 #include "OnlineMenu.h"
@@ -20,12 +20,24 @@ const FText UMenuButton::GetPaletteCategory()
 	return LOCTEXT("", "MGS");
 }
 
+void UMenuButton::SetupButton(UOnlineMenu* NewMainMenu)
+{
+	if (NewMainMenu == nullptr) return;
+	MainMenu = NewMainMenu;
+	if (MainMenu)
+	{
+		MainMenu->OnButtonReady.AddDynamic(this, &ThisClass::OnButtonReady);
+	}
+}
+
 #endif
 #undef LOCTEXT_NAMESPACE
 
 void UMenuButton::OnButtonClicked()
 {
 	if (MainMenu == nullptr) return;
+
+	SetIsEnabled(false);
 
 	switch (ButtonType)
 	{
@@ -53,4 +65,9 @@ void UMenuButton::OnButtonClicked()
 			break;
 		}
 	}
+}
+
+void UMenuButton::OnButtonReady(bool bButtonReady)
+{
+	SetIsEnabled(true);
 }

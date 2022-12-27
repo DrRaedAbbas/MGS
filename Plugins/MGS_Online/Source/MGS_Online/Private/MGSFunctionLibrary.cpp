@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copy righted to RAED ABBAS 2022
 
 
 #include "MGSFunctionLibrary.h"
@@ -10,7 +10,7 @@ FString UMGSFunctionLibrary::DisplayDebugMessage(FString DebugMessage, FLinearCo
 	{
 		GEngine->AddOnScreenDebugMessage(
 			-1,
-			15.f,
+			5.f,
 			MessageColor.ToFColor(true),
 			DebugMessage
 		);
