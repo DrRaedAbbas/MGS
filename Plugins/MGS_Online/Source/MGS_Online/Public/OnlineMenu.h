@@ -29,7 +29,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS Online Settings")
 	FString GameType = FString("FreeForAll");
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS Online Settings")
-	FString LevelPath = FString("/Game/Maps/Lobby");
+	FString LevelPath = FString("/Game/MGS/Maps/Lobby");
 
 	UFUNCTION()
 	void HostButtonClicked();

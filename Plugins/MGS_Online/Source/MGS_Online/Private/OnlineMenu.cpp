@@ -19,15 +19,6 @@ bool UOnlineMenu::Initialize()
 {
 	if (!Super::Initialize()) return false;
 
-	WidgetTree->ForEachWidget([&](UWidget* Widget)
-	{
-		if (UMenuButton* FoundButton= Cast<UMenuButton>(Widget))
-		{
-			//FoundButton->MainMenu = this;
-			FoundButton->SetupButton(this);
-		}
-	});
-
 	return true;
 }
 
@@ -58,7 +49,17 @@ void UOnlineMenu::LoadMenu()
 		{
 			MGS_OnlineSubsystem = GameInstance->GetSubsystem<UMGS_OnlineSubsystem>();
 		}
+
+		WidgetTree->ForEachWidget([&](UWidget* Widget)
+			{
+				if (UMenuButton* FoundButton = Cast<UMenuButton>(Widget))
+				{
+					//FoundButton->MainMenu = this;
+					FoundButton->SetupButton(this);
+				}
+			});
 	}
+
 	if (MGS_OnlineSubsystem)
 	{
 		MGS_OnlineSubsystem->MGSCreateSessionCompleted.AddDynamic(this, &ThisClass::OnCreateSession);

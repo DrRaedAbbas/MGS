@@ -48,6 +48,8 @@ void UMGS_OnlineSubsystem::CreateGameSession(int32 MaxPlayers, FString MatchType
 	SessionSettings->bUsesPresence = true;
 	SessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	SessionSettings->BuildUniqueId = 1;
+	SessionSettings->bUseLobbiesIfAvailable = true;
+	SessionSettings->bUseLobbiesVoiceChatIfAvailable = true;
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	const FUniqueNetId& LocalPlayerID = *LocalPlayer->GetPreferredUniqueNetId();
