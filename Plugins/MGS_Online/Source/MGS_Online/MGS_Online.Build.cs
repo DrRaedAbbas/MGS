@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copy righted to RAED ABBAS 2022
 
 using UnrealBuildTool;
 
@@ -27,7 +27,10 @@ public class MGS_Online : ModuleRules
 			{
 				"Core",
 				"OnlineSubsystem",
-				"OnlineSubsystemSteam"
+				"OnlineSubsystemSteam",
+				"UMG",
+				"Slate",
+				"SlateCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
