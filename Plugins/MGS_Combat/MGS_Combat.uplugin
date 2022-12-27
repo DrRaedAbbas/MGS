@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "Oline Subsystem",
+	"FriendlyName": "Combat System",
 	"Description": "",
 	"Category": "MGS",
 	"CreatedBy": "Raed Abbas",
@@ -16,19 +16,9 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "MGS_Online",
+			"Name": "MGS_Combat",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "OnlineSubsystem",
-			"Enabled": true
-		},
-		{
-			"Name": "OnlineSubsystemSteam",
-			"Enabled": true
 		}
 	]
 }
