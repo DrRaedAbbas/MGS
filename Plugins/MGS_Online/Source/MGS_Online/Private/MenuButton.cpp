@@ -7,7 +7,7 @@
 
 UMenuButton::UMenuButton()
 {
-	static ConstructorHelpers::FObjectFinder<USlateWidgetStyleAsset> CustomButtonStyle(TEXT("/Game/UI/Buttons/WS_Button"));
+	static ConstructorHelpers::FObjectFinder<USlateWidgetStyleAsset> CustomButtonStyle(TEXT("/Game/MGS/UI/Buttons/WS_Button"));
 	SButton::FArguments ButtonDefaults;
 	ButtonDefaults.ButtonStyle(CustomButtonStyle.Object);
 	WidgetStyle = *ButtonDefaults._ButtonStyle;
@@ -19,6 +19,8 @@ const FText UMenuButton::GetPaletteCategory()
 {
 	return LOCTEXT("", "MGS");
 }
+#endif
+#undef LOCTEXT_NAMESPACE
 
 void UMenuButton::SetupButton(UOnlineMenu* NewMainMenu)
 {
@@ -29,9 +31,6 @@ void UMenuButton::SetupButton(UOnlineMenu* NewMainMenu)
 		MainMenu->OnButtonReady.AddDynamic(this, &ThisClass::OnButtonReady);
 	}
 }
-
-#endif
-#undef LOCTEXT_NAMESPACE
 
 void UMenuButton::OnButtonClicked()
 {

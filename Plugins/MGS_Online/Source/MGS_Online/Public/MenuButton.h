@@ -23,6 +23,7 @@ class MGS_ONLINE_API UMenuButton : public UButton
 
 	UMenuButton();
 
+protected:
 #if WITH_EDITOR
 	virtual const FText GetPaletteCategory() override;
 #endif
@@ -30,6 +31,7 @@ class MGS_ONLINE_API UMenuButton : public UButton
 public:
 	class UOnlineMenu* MainMenu;
 	void SetupButton(class UOnlineMenu* NewMainMenu);
+
 protected:
 	UPROPERTY(EditAnywhere)
 	EButtonType ButtonType = EButtonType::NONE;
