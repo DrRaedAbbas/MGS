@@ -8,7 +8,7 @@ public class MGS : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" , "UMG" , "MGS_Online"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" , "UMG" , "MGS_Online" , "MGS_Inventory"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

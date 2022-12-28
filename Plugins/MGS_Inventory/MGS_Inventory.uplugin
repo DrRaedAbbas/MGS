@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Inventory Subsystem",
+	"Description": "",
+	"Category": "MGS",
+	"CreatedBy": "Raed Abbas",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "MGS_Inventory",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

@@ -3,29 +3,60 @@
 
 #include "Character/BaseCharacter.h"
 
-// Sets default values
+#include "BaseItem.h"
+#include "Components/CapsuleComponent.h"
+#include "Net/UnrealNetwork.h"
+
 ABaseCharacter::ABaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
-// Called when the game starts or when spawned
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
+}
+
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
+void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastOverlappingItem)
+{
+	if (OverlappingItem)
+	{
+		OverlappingItem->ShowItemWidget(true);
+	}
+	if (LastOverlappingItem)
+	{
+		LastOverlappingItem->ShowItemWidget(false);
+	}
+}
+
+void ABaseCharacter::SetOverlappedItem(ABaseItem* NewItem)
+{
+	if (OverlappingItem)
+	{
+		if (IsLocallyControlled()) OverlappingItem->ShowItemWidget(false);
+	}
+	OverlappingItem = NewItem;
+	if (IsLocallyControlled())
+	{
+		if (OverlappingItem == nullptr) return;
+		OverlappingItem->ShowItemWidget(true);
+	}
+}
+
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-// Called to bind functionality to input
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
