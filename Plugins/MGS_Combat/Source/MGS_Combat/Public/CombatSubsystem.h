@@ -6,9 +6,6 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "CombatSubsystem.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class MGS_COMBAT_API UCombatSubsystem : public UGameInstanceSubsystem
 {

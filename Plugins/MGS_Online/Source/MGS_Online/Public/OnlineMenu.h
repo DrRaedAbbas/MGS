@@ -24,11 +24,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UnloadMenu();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS Online Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS|Online Settings")
 	int32 MaxPlayers = 4;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS Online Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS|Online Settings")
 	FString GameType = FString("FreeForAll");
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS Online Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MGS|Online Settings")
 	FString LevelPath = FString("/Game/MGS/Maps/Lobby");
 
 	UFUNCTION()
