@@ -22,5 +22,9 @@ protected:
 
 private:
 	ABaseCharacter* Character;
+
+	void EquipItem(AActor* ItemToEquip, FName SocketName);
+
+	AActor* CurrentEquippedItem;
 		
 };

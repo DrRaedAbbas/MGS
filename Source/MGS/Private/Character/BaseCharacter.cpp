@@ -41,10 +41,52 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
 }
 
-
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABaseCharacter::EquipItem(AActor* ItemToEquip)
+{
+	if (Combat)
+	{
+		if (HasAuthority())
+		{
+			RequestEquipItem(ItemToEquip);
+		}
+		else
+		{
+			ServerEquipItem(ItemToEquip);
+		}
+	}
+}
+
+void ABaseCharacter::ServerEquipItem_Implementation(AActor* ItemToEquip)
+{
+	RequestEquipItem(ItemToEquip);
+}
+
+void ABaseCharacter::RequestEquipItem(AActor* ItemToEquip)
+{
+	ABaseItem* NewItem = nullptr;
+	if (ItemToEquip)
+	{
+		NewItem = Cast<ABaseItem>(ItemToEquip);
+		Combat->EquipItem(NewItem, FName("hand_rSocket"));
+	}
+
+	if (OverlappingItem)
+	{
+		NewItem = Cast<ABaseItem>(OverlappingItem);
+		Combat->EquipItem(NewItem, FName("hand_rSocket"));
+	}
+
+	if (NewItem)
+	{
+		Combat->EquipItem(NewItem, FName("hand_rSocket"));
+		NewItem->SetItemState(EItemState::E_Equipped);
+		//NewItem->ShowItemWidget(false);
+	}
 }
 
 void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastOverlappingItem)

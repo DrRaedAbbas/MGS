@@ -22,6 +22,9 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category="MGS|Combat")
+	void EquipItem(AActor* ItemToEquip);
+
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingItem)
 	class ABaseItem* OverlappingItem;
@@ -34,6 +37,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipItem(AActor* ItemToEquip);
+
+	UFUNCTION()
+		void RequestEquipItem(AActor* ItemToEquip);
 
 public:
 	UFUNCTION()

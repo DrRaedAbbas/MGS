@@ -16,7 +16,12 @@ class MGS_INVENTORY_API ABaseItem : public AActor
 public:	
 	ABaseItem();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray <FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
 	void ShowItemWidget(bool bShowWidget);
+	UFUNCTION()
+	void SetItemState(EItemState NewItemState);
 
 protected:
 	virtual void BeginPlay() override;
@@ -33,11 +38,17 @@ protected:
 	FString EquippingSocket = "hand_rSocket";
 
 private:
-	class UInventorySubsystem* InventorySubsystem;
+	UInventorySubsystem* InventorySubsystem;
 
-	UPROPERTY(EditAnywhere, Category = "MGS|Item Details")
+	UPROPERTY(ReplicatedUsing=OnRep_ItemState, EditAnywhere, Category = "MGS|Item Details")
 	EItemState ItemState = EItemState::E_Initial;
 
 	UFUNCTION(BlueprintCallable, Category = "MGS|Item Details")
 	void UpdateOverlappingCharacter(ACharacter* OverlappingCharacter, bool bIsOverlapping);
+
+	UFUNCTION()
+	void OnRep_ItemState();
+
+	UFUNCTION()
+	void UpdateItemState();
 };

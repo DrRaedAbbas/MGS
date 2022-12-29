@@ -26,6 +26,7 @@ public class MGS_Combat : ModuleRules
 			new string[]
 			{
 				"Core",
+				"MGS_Inventory",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
