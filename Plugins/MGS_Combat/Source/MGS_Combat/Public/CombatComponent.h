@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemEquipped, AActor*, EquippedItem, bool, bIsEquipped)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MGS_COMBAT_API UCombatComponent : public UActorComponent
@@ -22,5 +23,10 @@ protected:
 
 private:
 	ABaseCharacter* Character;
-		
+
+	void EquipItem(AActor* ItemToEquip, FName SocketName);
+
+	AActor* CurrentEquippedItem;
+
+	FOnItemEquipped OnItemEquipped;
 };

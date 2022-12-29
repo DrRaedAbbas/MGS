@@ -3,9 +3,11 @@
 
 #include "BaseItem.h"
 
+#include "ItemPrimaryDataAsset.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Character/BaseCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 ABaseItem::ABaseItem()
 {
@@ -30,11 +32,20 @@ ABaseItem::ABaseItem()
 	ItemWidget = CreateDefaultSubobject<UWidgetComponent>("Widget");
 	ItemWidget->SetupAttachment(RootComponent);
 	ItemWidget->SetVisibility(false);
+
+	ItemState = EItemState::E_Initial;
+}
+
+void ABaseItem::UpdateItemFromDataAsset()
+{
+	if (ItemDetails != nullptr && ItemDetails->ItemSkeletalMesh != nullptr) ItemMesh->SetSkeletalMesh(ItemDetails->ItemSkeletalMesh);
 }
 
 void ABaseItem::BeginPlay()
 {
 	Super::BeginPlay();
+	UpdateItemFromDataAsset();
+
 	if (HasAuthority())
 	{
 		if(UGameInstance* GameInstance = GetGameInstance())
@@ -65,10 +76,49 @@ void ABaseItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABaseItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseItem, ItemState);
+}
+
+void ABaseItem::OnRep_ItemState()
+{
+	UpdateItemState();
+}
+
 void ABaseItem::ShowItemWidget(bool bShowWidget)
 {
 	if (ItemWidget)
 	{
 		ItemWidget->SetVisibility(bShowWidget);
+	}
+}
+
+void ABaseItem::SetItemState(EItemState NewItemState)
+{
+	ItemState = NewItemState;
+	UpdateItemState();
+}
+
+void ABaseItem::UpdateItemState()
+{
+	switch (ItemState)
+	{
+	case EItemState::E_Initial:
+		SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		break;
+	case EItemState::E_PickedUp:
+		ShowItemWidget(false);
+		SphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	case EItemState::E_Equipped:
+		ShowItemWidget(false);
+		SphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	case EItemState::E_Dropped:
+		SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		break;
 	}
 }

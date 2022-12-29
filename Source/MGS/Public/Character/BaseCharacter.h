@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
+class ABaseItem;
+
 UCLASS()
 class MGS_API ABaseCharacter : public ACharacter
 {
@@ -22,9 +24,15 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category="MGS|Combat")
+	void EquipItem(AActor* ItemToEquip);
+
+	UFUNCTION()
+	void OnItemEquippedCompleted(AActor* EquippedItem, bool bIsEquipped);
+
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingItem)
-	class ABaseItem* OverlappingItem;
+	ABaseItem* OverlappingItem;
 
 	UFUNCTION()
 	void OnRep_OverlappingItem(ABaseItem* LastOverlappingItem);
@@ -35,7 +43,20 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
 
+	UFUNCTION(Server, Reliable)
+	void ServerEquipItem(AActor* ItemToEquip);
+
+	UFUNCTION()
+	void RequestEquipItem(AActor* ItemToEquip);
+
 public:
 	UFUNCTION()
 	void SetOverlappedItem(ABaseItem* NewItem);
+
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "MGS|Combat")
+	bool bItemIsEquipped = false;
+
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "MGS|Combat")
+	UAnimSequence* EquipAnimation;
+	
 };

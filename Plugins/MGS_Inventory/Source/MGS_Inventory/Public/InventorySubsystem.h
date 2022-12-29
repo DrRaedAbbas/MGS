@@ -12,7 +12,8 @@ enum class EItemState : uint8
 {
 	E_Initial UMETA(DisplayName = "Initial"),
 	E_PickedUp UMETA(DisplayName = "Pickedup"),
-	E_Dropped UMETA(DisplayName = "Dropped")
+	E_Dropped UMETA(DisplayName = "Dropped"),
+	E_Equipped UMETA(DisplayName = "Equipped")
 };
 
 

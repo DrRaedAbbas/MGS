@@ -6,6 +6,7 @@
 #include "BaseItem.h"
 #include "CombatComponent.h"
 #include "InventoryComponent.h"
+#include "ItemPrimaryDataAsset.h"
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -28,6 +29,7 @@ void ABaseCharacter::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character = this;
+		Combat->OnItemEquipped.AddDynamic(this, &ThisClass::OnItemEquippedCompleted);
 	}
 	if (Inventory)
 	{
@@ -39,12 +41,65 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
+	DOREPLIFETIME(ABaseCharacter, bItemIsEquipped);
+	DOREPLIFETIME(ABaseCharacter, EquipAnimation);
 }
-
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABaseCharacter::EquipItem(AActor* ItemToEquip)
+{
+	if (Combat)
+	{
+		if (HasAuthority())
+		{
+			RequestEquipItem(ItemToEquip);
+		}
+		else
+		{
+			ServerEquipItem(ItemToEquip);
+		}
+	}
+}
+
+void ABaseCharacter::RequestEquipItem(AActor* ItemToEquip)
+{
+	ABaseItem* NewItem = nullptr;
+	if (ItemToEquip)
+	{
+		NewItem = Cast<ABaseItem>(ItemToEquip);
+	}
+
+	if (OverlappingItem)
+	{
+		NewItem = Cast<ABaseItem>(OverlappingItem);
+	}
+
+	if (NewItem)
+	{
+		FName SocketName = NewItem->ItemDetails->EquipSocketName;
+		Combat->EquipItem(NewItem, SocketName);
+//		NewItem->SetItemState(EItemState::E_Equipped);
+	}
+}
+
+void ABaseCharacter::ServerEquipItem_Implementation(AActor* ItemToEquip)
+{
+	RequestEquipItem(ItemToEquip);
+}
+
+void ABaseCharacter::OnItemEquippedCompleted(AActor* EquippedItem, bool bIsEquipped)
+{
+	if (ABaseItem* NewItem = Cast<ABaseItem>(EquippedItem))
+	{
+		NewItem->SetItemState(EItemState::E_Equipped);
+		EquipAnimation = NewItem->ItemDetails->ItemEqipingAnimation;
+		bItemIsEquipped = bIsEquipped;
+		UE_LOG(LogTemp, Warning, TEXT("Item equipped"));
+	}
 }
 
 void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastOverlappingItem)
