@@ -29,6 +29,8 @@ protected:
 	USkeletalMeshComponent* ItemMesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "MGS|Item Details")
 	class UWidgetComponent* ItemWidget;
+	UPROPERTY(VisibleAnywhere, Category = "MGS|Item Details")
+	FString EquippingSocket = "hand_rSocket";
 
 private:
 	class UInventorySubsystem* InventorySubsystem;

@@ -10,5 +10,5 @@ UCLASS()
 class MGS_COMBAT_API UCombatSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	
+
 };
