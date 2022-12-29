@@ -6,6 +6,7 @@
 #include "BaseItem.h"
 #include "CombatComponent.h"
 #include "InventoryComponent.h"
+#include "ItemPrimaryDataAsset.h"
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -28,6 +29,7 @@ void ABaseCharacter::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character = this;
+		Combat->OnItemEquipped.AddDynamic(this, &ThisClass::OnItemEquippedCompleted);
 	}
 	if (Inventory)
 	{
@@ -39,6 +41,8 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
+	DOREPLIFETIME(ABaseCharacter, bItemIsEquipped);
+	DOREPLIFETIME(ABaseCharacter, EquipAnimation);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -61,31 +65,40 @@ void ABaseCharacter::EquipItem(AActor* ItemToEquip)
 	}
 }
 
-void ABaseCharacter::ServerEquipItem_Implementation(AActor* ItemToEquip)
-{
-	RequestEquipItem(ItemToEquip);
-}
-
 void ABaseCharacter::RequestEquipItem(AActor* ItemToEquip)
 {
 	ABaseItem* NewItem = nullptr;
 	if (ItemToEquip)
 	{
 		NewItem = Cast<ABaseItem>(ItemToEquip);
-		Combat->EquipItem(NewItem, FName("hand_rSocket"));
 	}
 
 	if (OverlappingItem)
 	{
 		NewItem = Cast<ABaseItem>(OverlappingItem);
-		Combat->EquipItem(NewItem, FName("hand_rSocket"));
 	}
 
 	if (NewItem)
 	{
-		Combat->EquipItem(NewItem, FName("hand_rSocket"));
+		FName SocketName = NewItem->ItemDetails->EquipSocketName;
+		Combat->EquipItem(NewItem, SocketName);
+//		NewItem->SetItemState(EItemState::E_Equipped);
+	}
+}
+
+void ABaseCharacter::ServerEquipItem_Implementation(AActor* ItemToEquip)
+{
+	RequestEquipItem(ItemToEquip);
+}
+
+void ABaseCharacter::OnItemEquippedCompleted(AActor* EquippedItem, bool bIsEquipped)
+{
+	if (ABaseItem* NewItem = Cast<ABaseItem>(EquippedItem))
+	{
 		NewItem->SetItemState(EItemState::E_Equipped);
-		//NewItem->ShowItemWidget(false);
+		EquipAnimation = NewItem->ItemDetails->ItemEqipingAnimation;
+		bItemIsEquipped = bIsEquipped;
+		UE_LOG(LogTemp, Warning, TEXT("Item equipped"));
 	}
 }
 

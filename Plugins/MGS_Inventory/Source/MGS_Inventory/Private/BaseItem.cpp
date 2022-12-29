@@ -3,6 +3,7 @@
 
 #include "BaseItem.h"
 
+#include "ItemPrimaryDataAsset.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Character/BaseCharacter.h"
@@ -35,9 +36,16 @@ ABaseItem::ABaseItem()
 	ItemState = EItemState::E_Initial;
 }
 
+void ABaseItem::UpdateItemFromDataAsset()
+{
+	if (ItemDetails != nullptr && ItemDetails->ItemSkeletalMesh != nullptr) ItemMesh->SetSkeletalMesh(ItemDetails->ItemSkeletalMesh);
+}
+
 void ABaseItem::BeginPlay()
 {
 	Super::BeginPlay();
+	UpdateItemFromDataAsset();
+
 	if (HasAuthority())
 	{
 		if(UGameInstance* GameInstance = GetGameInstance())
@@ -78,24 +86,6 @@ void ABaseItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 void ABaseItem::OnRep_ItemState()
 {
 	UpdateItemState();
-
-	/*switch (ItemState)
-	{
-	case EItemState::E_Initial:
-		SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		break;
-	case EItemState::E_PickedUp:
-		ShowItemWidget(false);
-		SphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		break;
-	case EItemState::E_Equipped:
-		ShowItemWidget(false);
-		SphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		break;
-	case EItemState::E_Dropped:
-		SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		break;
-	}*/
 }
 
 void ABaseItem::ShowItemWidget(bool bShowWidget)

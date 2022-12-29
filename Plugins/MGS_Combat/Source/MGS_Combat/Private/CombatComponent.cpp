@@ -25,9 +25,9 @@ void UCombatComponent::EquipItem(AActor* ItemToEquip, FName SocketName)
 	if (Socket)
 	{
 		CurrentEquippedItem = ItemToEquip;
-		Socket->AttachActor(CurrentEquippedItem, Character->GetMesh());
+		bool bEquipSuccess = Socket->AttachActor(CurrentEquippedItem, Character->GetMesh());
 		CurrentEquippedItem->SetOwner(Character);
-		UE_LOG(LogTemp, Warning, TEXT("Item equipped"));
+		OnItemEquipped.Broadcast(CurrentEquippedItem, bEquipSuccess);
 	}
 }
 
