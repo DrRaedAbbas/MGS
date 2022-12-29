@@ -30,21 +30,4 @@ public:
 private:
 	UPROPERTY()
 	TArray<AActor*> Items;
-
-	UPROPERTY()
-	class USphereComponent* ItemSphere;
-
-	UPROPERTY()
-	class UWidgetComponent* ItemWidget;
-
-protected:
-	/*UFUNCTION()
-	void OnItemOverlapped(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComponent,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);*/
 };

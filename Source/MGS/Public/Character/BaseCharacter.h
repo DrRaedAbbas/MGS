@@ -16,7 +16,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray <FLifetimeProperty> &OutLifetimeProps) const override;
-	
+	virtual void PostInitializeComponents() override;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -27,6 +28,12 @@ private:
 
 	UFUNCTION()
 	void OnRep_OverlappingItem(ABaseItem* LastOverlappingItem);
+
+	UPROPERTY(VisibleAnywhere)
+	class UInventoryComponent* Inventory;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCombatComponent* Combat;
 
 public:
 	UFUNCTION()
