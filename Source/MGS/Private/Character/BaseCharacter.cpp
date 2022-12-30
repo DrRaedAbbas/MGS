@@ -23,6 +23,12 @@ ABaseCharacter::ABaseCharacter()
 	Inventory->SetIsReplicated(true);
 }
 
+void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
 void ABaseCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -43,11 +49,20 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
 	DOREPLIFETIME(ABaseCharacter, bItemIsEquipped);
 	DOREPLIFETIME(ABaseCharacter, EquipAnimation);
+	DOREPLIFETIME(ABaseCharacter, bIsAim);
+	DOREPLIFETIME(ABaseCharacter, AimYaw);
+	DOREPLIFETIME(ABaseCharacter, AimRoll);
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABaseCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
 }
 
 void ABaseCharacter::EquipItem(AActor* ItemToEquip)
@@ -64,7 +79,6 @@ void ABaseCharacter::EquipItem(AActor* ItemToEquip)
 		}
 	}
 }
-
 void ABaseCharacter::RequestEquipItem(AActor* ItemToEquip)
 {
 	ABaseItem* NewItem = nullptr;
@@ -85,12 +99,10 @@ void ABaseCharacter::RequestEquipItem(AActor* ItemToEquip)
 //		NewItem->SetItemState(EItemState::E_Equipped);
 	}
 }
-
 void ABaseCharacter::ServerEquipItem_Implementation(AActor* ItemToEquip)
 {
 	RequestEquipItem(ItemToEquip);
 }
-
 void ABaseCharacter::OnItemEquippedCompleted(AActor* EquippedItem, bool bIsEquipped)
 {
 	if (ABaseItem* NewItem = Cast<ABaseItem>(EquippedItem))
@@ -100,6 +112,30 @@ void ABaseCharacter::OnItemEquippedCompleted(AActor* EquippedItem, bool bIsEquip
 		bItemIsEquipped = bIsEquipped;
 		UE_LOG(LogTemp, Warning, TEXT("Item equipped"));
 	}
+}
+
+void ABaseCharacter::AimItem(bool bNewAim)
+{
+	ServerAim(bNewAim);
+}
+void ABaseCharacter::ServerAim_Implementation(bool bIsAimNew)
+{
+	bIsAim = bIsAimNew;
+	if (bIsAim == false)
+	{
+		AimYaw = 0;
+		AimRoll = 0;
+	}
+}
+
+void ABaseCharacter::AimOffset(float NewAimYaw, float NewAimRoll)
+{
+	ServerAimOffset(NewAimYaw, NewAimRoll);
+}
+void ABaseCharacter::ServerAimOffset_Implementation(float AimYawNew, float AimRollNew)
+{
+	AimYaw = AimYaw + AimYawNew;
+	AimRoll = AimRoll + AimRollNew;
 }
 
 void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastOverlappingItem)
@@ -113,7 +149,6 @@ void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastOverlappingItem)
 		LastOverlappingItem->ShowItemWidget(false);
 	}
 }
-
 void ABaseCharacter::SetOverlappedItem(ABaseItem* NewItem)
 {
 	if (OverlappingItem)
@@ -127,16 +162,3 @@ void ABaseCharacter::SetOverlappedItem(ABaseItem* NewItem)
 		OverlappingItem->ShowItemWidget(true);
 	}
 }
-
-void ABaseCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
