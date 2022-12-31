@@ -26,9 +26,13 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="MGS|Combat")
 	void EquipItem(AActor* ItemToEquip);
-
 	UFUNCTION()
 	void OnItemEquippedCompleted(AActor* EquippedItem, bool bIsEquipped);
+
+	UFUNCTION(BlueprintCallable, Category = "MGS|Combat")
+	void AimItem(bool bNewAim);
+	UFUNCTION(BlueprintCallable, Category = "MGS|Combat")
+	void AimOffset(float NewAimYaw, float NewAimRoll);
 
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingItem)
@@ -45,10 +49,13 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipItem(AActor* ItemToEquip);
-
 	UFUNCTION()
 	void RequestEquipItem(AActor* ItemToEquip);
 
+	UFUNCTION(Server, Reliable)
+	void ServerAim(bool bIsAimNew);
+	UFUNCTION(Server, Reliable)
+	void ServerAimOffset(float AimYawNew, float AimRollNew);
 public:
 	UFUNCTION()
 	void SetOverlappedItem(ABaseItem* NewItem);
@@ -58,5 +65,12 @@ public:
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "MGS|Combat")
 	UAnimSequence* EquipAnimation;
-	
+
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "MGS|Combat")
+	bool bIsAim = false;
+
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "MGS|Combat")
+	float AimYaw = 0.0f;
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "MGS|Combat")
+	float AimRoll = 0.0f;
 };
